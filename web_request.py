@@ -1,3 +1,5 @@
+# database: 192.168.1.7
+
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import re
@@ -15,7 +17,15 @@ class Location():
 
 class House(object):
 	"""docstring for House"""
-	def __init__(self, unit_price, total_price, location):
+	def __init__(self, community, age, size, layers, floor, orientation, five_years, two_years, unit_price, total_price, location):
+		self.community = community
+		self.age = age
+		self.size = size
+		self.layers = layers
+		self.floor = floor
+		self.orientation = orientation
+		self.five_years = five_years
+		self.two_years = two_years
 		self.unit_price = unit_price
 		self.total_price = total_price
 		self.location = location
@@ -30,27 +40,9 @@ area_list = []
 location_list = []
 house_list = []
 
-# total_price = home_page_bs.find("ul", {"class": "js_fang_list"}).find("span", {"class", "total-price strong-num"}).getText()
-# unit_price_part = home_page_bs.find("ul", {"class": "js_fang_list"}).find("span", {"class", "info-col price-item minor"}).getText().strip()
-# unit_price = re.search('\d+', unit_price_part).group(0)
-
-# print(total_price)
-# print(unit_price)
-
-# total_price_all = home_page_bs.find("ul", {"class": "js_fang_list"}).findAll("span", {"class", "total-price strong-num"})
-
-# for total_price in total_price_all:
-# 	print(total_price.getText())
-
-# unit_price_all = home_page_bs.find("ul", {"class": "js_fang_list"}).findAll("span", {"class", "info-col price-item minor"})
-
-# for unit_price in unit_price_all:
-# 	unit_price_part = unit_price.getText().strip()
-# 	print(re.search('\d+', unit_price_part).group(0))
-
 area_links = home_page_bs.find("div", {"class": "level1"}).findAll("a")
 
-f = open('data.csv', 'w+')
+f = open('data.csv', 'a')
 
 for area_link in area_links[1:]:
 	area = Area(area_link.getText())
@@ -63,10 +55,56 @@ for area_link in area_links[1:]:
 		location_page_bs = getBsObj(domain + location_link.get('href'))
 		house_infos = location_page_bs.findAll("div", {"class": "info-table"})
 		for house_info in house_infos:
+			base_infos1 = house_info.find("span", {"class": "row1-text"}).getText().split('|')
+			base_infos1 = [ base_info.strip() for base_info in base_infos1 ]
+			print(base_infos1)
+			size = re.search('\d+.\d+', base_infos1[1]).group(0)
+			try:
+				layers = re.search('\d+', base_infos1[2].split('/')[1]).group(0)
+			except Exception as e:
+				layers = base_infos1[2]
+			try:
+				floor = base_infos1[2].split('/')[0]
+			except Exception as e:
+				floor = base_infos1[2]
+			try:
+				orientation = base_infos1[3]
+			except Exception as e:
+				orientation = ''
+
+			base_infos2 = house_info.find("span", {"class": "row2-text"}).getText().split('|')
+			base_infos2 = [ base_info.strip() for base_info in base_infos2 ]
+			print(base_infos2)
+			community = base_infos2[0]
+			try:
+				age = re.search('\d+', base_infos2[3]).group(0)
+			except Exception as e:
+				age = ''
+			property = house_info.find_next_sibling("div").getText()
+			if "满五" in property:
+				five_years = '1'
+				two_years = '1'
+			elif "满二" in property:
+				five_years = '0'
+				two_years = '1'
+			else:
+				five_years = '0'
+				two_years = '0'
 			unit_price = re.search('\d+', house_info.find("span", {"class": "price-item"}).getText().strip()).group(0)
 			total_price = house_info.find("span", {"class": "total-price"}).getText()
-			house = House(unit_price, total_price, location)
+			house = House(community, age, size, layers, floor, orientation, five_years, two_years, unit_price, total_price, location)
 			house_list.append(house)
-			f.write(house.unit_price + ', ' + house.total_price + ', ' + location.name + ', ' + area.name + '\n')
+			f.write(house.community + ', '
+				+ house.age + ', '
+				+ house.size + ', '
+				+ house.layers + ', '
+				+ house.floor + ', '
+				+ house.orientation + ', '
+				+ house.five_years + ', '
+				+ house.two_years + ', '	
+				+ house.unit_price + ', ' 
+				+ house.total_price + ', ' 
+				+ location.name + ', ' 
+				+ area.name + '\n')
 
 f.close()
