@@ -1,4 +1,5 @@
 import util
+import requests
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import re
@@ -9,8 +10,11 @@ domain = "http://sh.lianjia.com"
 def get_bs_obj(url):
 	print("\n Get bs: " + url + "\n")
 	# time.sleep(1)
-	html = urlopen(url)
-	return BeautifulSoup(html.read(), "lxml")
+	request = requests.get(url)
+	print("Get request")
+	bs = BeautifulSoup(request.text, "lxml")
+	print("Return bs")
+	return bs
 
 # bs_obj = get_bs_obj("http://www.baidu.com")
 # # print(bs_obj)
@@ -57,7 +61,7 @@ def get_house_pages(location):
 @util.retry(10)
 def get_house_info(house_link):
 	house_bs = get_bs_obj(house_link)
-	print(house_link)
+	print("Get bs")
 	house = {}
 	house['house_id'] = re.search('\d+', house_link).group(0)
 	print('house_id: ' + house['house_id'])
@@ -118,12 +122,13 @@ def get_house_info(house_link):
 	house['total_watch'] = int(house_bs.find("look-list")['count90'])
 	print('total_watch: ' + str(house['total_watch']))
 
-	visit_data = house_bs.findAll("script")[1].getText()
+	# visit_data = house_bs.findAll("script")[1].getText()
 	# try:
 	# 	house['first_visit'] = util.parse_js(visit_data)['date']
 	# except Exception as e:
 	# 	house['first_visit'] = ''
 	# print('first_visit: ' + house['first_visit'])
+
 	return house
 
 
@@ -133,7 +138,9 @@ def get_one_page_house(link):
 	houses = []
 	for house_info in one_page_house_bs.findAll("li"):
 		house_link = domain + house_info.find("a")['href']
-		houses.append(get_house_info(house_link))
+		house = get_house_info(house_link)
+		if house:
+			houses.append(house)
 	return houses
 
 def get_all_houses(location):
@@ -150,7 +157,7 @@ def get_all_houses(location):
 
 # get_house_info("http://sh.lianjia.com/ershoufang/sh4886001.html")
 
-# get_house_info("http://sh.lianjia.com/ershoufang/sh4782249.html")
+# get_house_info("http://sh.lianjia.com/ershoufang/sh4553999.html")
 
 
 

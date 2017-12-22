@@ -1,6 +1,8 @@
-from urllib.request import urlopen
 from bs4 import BeautifulSoup
+import requests
 
-html = urlopen("http://lianjia.com")
-bs = BeautifulSoup(html, "lxml")
+r = requests.get("http://sh.lianjia.com/ershoufang/sh4553999.html")
+
+bs = BeautifulSoup(r.text, "lxml")
+
 print(bs)
