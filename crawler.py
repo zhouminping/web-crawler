@@ -8,7 +8,7 @@ domain = "http://sh.lianjia.com"
 
 def get_bs_obj(url):
 	print("\n Get bs: " + url + "\n")
-	time.sleep(1)
+	# time.sleep(1)
 	html = urlopen(url)
 	return BeautifulSoup(html.read(), "lxml")
 
