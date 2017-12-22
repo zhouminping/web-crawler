@@ -122,12 +122,12 @@ def get_house_info(house_link):
 	house['total_watch'] = int(house_bs.find("look-list")['count90'])
 	print('total_watch: ' + str(house['total_watch']))
 
-	# visit_data = house_bs.findAll("script")[1].getText()
-	# try:
-	# 	house['first_visit'] = util.parse_js(visit_data)['date']
-	# except Exception as e:
-	# 	house['first_visit'] = ''
-	# print('first_visit: ' + house['first_visit'])
+	visit_data = house_bs.findAll("script")[1].getText()
+	try:
+		house['first_visit'] = util.parse_js(visit_data)['date']
+	except Exception as e:
+		house['first_visit'] = ''
+	print('first_visit: ' + house['first_visit'])
 
 	return house
 

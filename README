@@ -1,0 +1,8 @@
+-- disable the warning for slimit
+
+add a parameter to the function ply.yacc.yacc() in slimit/parser.py to:
+
+self.parser = ply.yacc.yacc(
+    module=self, optimize=yacc_optimize,
+    errorlog=ply.yacc.NullLogger(),  // new added
+    debug=yacc_debug, tabmodule=yacctab, start='program')
