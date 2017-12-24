@@ -6,3 +6,11 @@ self.parser = ply.yacc.yacc(
     module=self, optimize=yacc_optimize,
     errorlog=ply.yacc.NullLogger(),  // new added
     debug=yacc_debug, tabmodule=yacctab, start='program')
+
+
+-- disale the warning like: `Couldn't write lextab module <module 'slimit.lextab' from '/usr/local/lib/python2.7/dist-packages/slimit/lextab.pyc'>`
+
+ down grade the ply package to 3.4
+
+ 	pip uninstall ply
+	pip install ply==3.4

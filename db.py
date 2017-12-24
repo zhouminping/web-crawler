@@ -1,6 +1,14 @@
 import pymysql
 import util
 
+config = {
+	'user': 'zhouminping',
+	'password': 'qazwsx',
+	'host': '178.62.122.173',
+	'database': 'house_info',
+	'charset': 'utf8'
+}
+
 @util.retry(3)
 def connect(config):
 	return pymysql.connect(**config)
