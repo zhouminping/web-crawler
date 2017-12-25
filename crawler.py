@@ -8,12 +8,23 @@ import time
 domain = "http://sh.lianjia.com"
 
 def get_bs_obj(url):
-	print("\n Get bs: " + url + "\n")
+	# print("\n Get bs: " + url + "\n")
 	# time.sleep(1)
-	request = requests.get(url)
-	# print("Get request")
-	bs = BeautifulSoup(request.text, "lxml")
-	# print("Return bs")
+	for i in range(10):
+		try:
+			request = requests.get(url)
+			# print("\n Get Request: " + url + "\n")
+		except Exception as e:
+			if i >= 9:
+				print("connection failed: " + url)
+			else:
+				print("try agin: " + url)
+				time.sleep(1)
+		else:
+			# print("Get request")
+			bs = BeautifulSoup(request.text, "lxml")
+			break
+			# print("Return bs")
 	return bs
 
 # bs_obj = get_bs_obj("http://www.baidu.com")
@@ -63,71 +74,73 @@ def get_house_info(house_link):
 	house_bs = get_bs_obj(house_link)
 	# print("Get bs")
 	house = {}
-	house['house_id'] = re.search('\d+', house_link).group(0)
-	print('house_id: ' + house['house_id'])
-	house['href'] = house_link
-	print('house_href: ' + house['href'])
-	house['total_price'] = int(house_bs.find("div", {"class": "price-total"}).find("span", {"class": "price-num"}).getText())
-	# print('total_price: ' + str(house['total_price']))
-	house['unit_price'] = int(house_bs.find("div", {"class": "price-unit"}).find("span").getText())
-	# print('unit_price: ' + str(house['unit_price']))
-	try:
-		house['facing'] = house_bs.find(text="房屋朝向").find_next().getText().strip()
-	except Exception as e:
-		house['facing'] = ''
-	# print('facing: ' + house['facing']) 
-	house_floor_info = house_bs.find(text="所在楼层").find_next().getText().strip().split('/')
-	house['floor'] = house_floor_info[0]
-	# print('floor: ' + house['floor'])
-	try:
-		house['layers'] = int(re.search('\d+', house_floor_info[1]).group(0)) 
-	except Exception as e:
-		house['layers'] = 0
-	# print('layers: ' + str(house['layers']))
-	house_size = house_bs.find(text="建筑面积").find_next().getText().strip()
-	house['size'] = float(re.search('\d+.\d+', house_size).group(0))
-	# print('size: ' + str(house['size']))
-	house['decorate'] = house_bs.find(text="装修情况").find_next().getText().strip()
-	# print('decorate: ' + house['decorate'])
 
-	main_info = house_bs.find("ul", {"class": "maininfo-main"}).getText()
-	main_infos = ','.join(main_info.split()).split(',')
-
-	try:
-		house['age'] = int(re.search('\d+', main_infos[5]).group(0))
-	except Exception as e:
+	if house_bs is not None:
+		house['house_id'] = re.search('\d+', house_link).group(0)
+		# print('house_id: ' + house['house_id'])
+		house['href'] = house_link
+		# print('house_href: ' + house['href'])
+		house['total_price'] = int(house_bs.find("div", {"class": "price-total"}).find("span", {"class": "price-num"}).getText())
+		# print('total_price: ' + str(house['total_price']))
+		house['unit_price'] = int(house_bs.find("div", {"class": "price-unit"}).find("span").getText())
+		# print('unit_price: ' + str(house['unit_price']))
 		try:
-			age_info = house_bs.find(text="建筑年代").find_next().getText().strip()
-			house['age'] = int(re.search('\d+', age_info).group(0)) 
+			house['facing'] = house_bs.find(text="房屋朝向").find_next().getText().strip()
 		except Exception as e:
-			house['age'] = 0
-	# print('age: ' + str(house['age']))
+			house['facing'] = ''
+		# print('facing: ' + house['facing']) 
+		house_floor_info = house_bs.find(text="所在楼层").find_next().getText().strip().split('/')
+		house['floor'] = house_floor_info[0]
+		# print('floor: ' + house['floor'])
+		try:
+			house['layers'] = int(re.search('\d+', house_floor_info[1]).group(0)) 
+		except Exception as e:
+			house['layers'] = 0
+		# print('layers: ' + str(house['layers']))
+		house_size = house_bs.find(text="建筑面积").find_next().getText().strip()
+		house['size'] = float(re.search('\d+.\d+', house_size).group(0))
+		# print('size: ' + str(house['size']))
+		house['decorate'] = house_bs.find(text="装修情况").find_next().getText().strip()
+		# print('decorate: ' + house['decorate'])
 
-	house_region = house_bs.find(text="小区名称").find_next().getText()
-	house_region_list = ','.join(house_region.split()).split(',')
-	house['community'] = house_region_list[0]
-	# print('community: ' + house['community'])
-	# house['area'] = re.search('[^\(]+', house_region_list[1]).group(0)
-	# print('area: ' + house['area'])
-	# house['location'] = re.search('.[^\(]', house_region_list[2]).group(0)
-	# print('location:' + house['location'])
-	
-	house['buy_time'] = house_bs.find(text="上次交易").find_next().getText().strip()
-	# print('buy_time: ' + house['buy_time'])
-	house['years'] = house_bs.find(text="房本年限").find_next().getText().strip()
-	# print('years: ' + house['years'])
+		main_info = house_bs.find("ul", {"class": "maininfo-main"}).getText()
+		main_infos = ','.join(main_info.split()).split(',')
 
-	house['7_days_watch'] = int(house_bs.find("look-list")['count7'])
-	# print('7_days_watch: ' + str(house['7_days_watch']))
-	house['total_watch'] = int(house_bs.find("look-list")['count90'])
-	# print('total_watch: ' + str(house['total_watch']))
+		try:
+			house['age'] = int(re.search('\d+', main_infos[5]).group(0))
+		except Exception as e:
+			try:
+				age_info = house_bs.find(text="建筑年代").find_next().getText().strip()
+				house['age'] = int(re.search('\d+', age_info).group(0)) 
+			except Exception as e:
+				house['age'] = 0
+		# print('age: ' + str(house['age']))
 
-	visit_data = house_bs.findAll("script")[1].getText()
-	try:
-		house['first_visit'] = util.parse_js(visit_data)['date']
-	except Exception as e:
-		house['first_visit'] = ''
-	# print('first_visit: ' + house['first_visit'])
+		house_region = house_bs.find(text="小区名称").find_next().getText()
+		house_region_list = ','.join(house_region.split()).split(',')
+		house['community'] = house_region_list[0]
+		# print('community: ' + house['community'])
+		# house['area'] = re.search('[^\(]+', house_region_list[1]).group(0)
+		# print('area: ' + house['area'])
+		# house['location'] = re.search('.[^\(]', house_region_list[2]).group(0)
+		# print('location:' + house['location'])
+		
+		house['buy_time'] = house_bs.find(text="上次交易").find_next().getText().strip()
+		# print('buy_time: ' + house['buy_time'])
+		house['years'] = house_bs.find(text="房本年限").find_next().getText().strip()
+		# print('years: ' + house['years'])
+
+		house['7_days_watch'] = int(house_bs.find("look-list")['count7'])
+		# print('7_days_watch: ' + str(house['7_days_watch']))
+		house['total_watch'] = int(house_bs.find("look-list")['count90'])
+		# print('total_watch: ' + str(house['total_watch']))
+
+		visit_data = house_bs.findAll("script")[1].getText()
+		try:
+			house['first_visit'] = util.parse_js(visit_data)['date']
+		except Exception as e:
+			house['first_visit'] = ''
+		# print('first_visit: ' + house['first_visit'])
 
 	return house
 

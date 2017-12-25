@@ -12,7 +12,7 @@ def retry(times):
                     return func(*args)
                 except Exception as e:
                     attempts += 1
-                    print(e.args)
+                    print(e)
         return f
     return tryIt
 
