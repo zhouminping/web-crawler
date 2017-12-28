@@ -1,10 +1,12 @@
-import crawler
-import db
 from bs4 import BeautifulSoup
 from multiprocessing import Pool
+import sys
+sys.path.append("..")
 import util
+import crawler
+import db
 
-add_house_sql = "INSERT INTO `test` (`house_id`, `href`, `area_id`, `location_id`, `community`, `age`, `size`, `layers`, `floor`, `facing`, `decorate`, `buy_time`, `years`, `unit_price`, `total_price`, `first_visit`, `7_days_watch`, `total_watch`) VALUES (%(house_id)s, %(href)s, %(area_id)s, %(location_id)s, %(community)s, %(age)s, %(size)s, %(layers)s, %(floor)s, %(facing)s, %(decorate)s, %(buy_time)s, %(years)s, %(unit_price)s, %(total_price)s, %(first_visit)s, %(7_days_watch)s, %(total_watch)s)"
+add_house_sql = "INSERT INTO `${DATE}` (`house_id`, `href`, `area_id`, `location_id`, `community`, `age`, `size`, `layers`, `floor`, `facing`, `decorate`, `buy_time`, `years`, `unit_price`, `total_price`, `first_visit`, `7_days_watch`, `total_watch`) VALUES (%(house_id)s, %(href)s, %(area_id)s, %(location_id)s, %(community)s, %(age)s, %(size)s, %(layers)s, %(floor)s, %(facing)s, %(decorate)s, %(buy_time)s, %(years)s, %(unit_price)s, %(total_price)s, %(first_visit)s, %(7_days_watch)s, %(total_watch)s)"
 
 @util.retry(10)
 def get_location_id_by_name(location_name):
