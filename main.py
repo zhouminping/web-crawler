@@ -5,6 +5,7 @@ sys.path.append("..")
 import util
 import crawler
 import db
+import email_util
 
 add_house_sql = "INSERT INTO `${DATE}` (`house_id`, `href`, `area_id`, `location_id`, `community`, `age`, `size`, `layers`, `floor`, `facing`, `decorate`, `buy_time`, `years`, `unit_price`, `total_price`, `first_visit`, `7_days_watch`, `total_watch`) VALUES (%(house_id)s, %(href)s, %(area_id)s, %(location_id)s, %(community)s, %(age)s, %(size)s, %(layers)s, %(floor)s, %(facing)s, %(decorate)s, %(buy_time)s, %(years)s, %(unit_price)s, %(total_price)s, %(first_visit)s, %(7_days_watch)s, %(total_watch)s)"
 
@@ -68,3 +69,4 @@ for area in area_list:
 		p.join()
 		print("location " + location['name'] + " done!")
 
+email_util.send("251463073@qq.com", "House Info Crawler", "${DATE} DONE!")
